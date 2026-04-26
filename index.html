@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>腰突训练</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#FAFAF8;--surface:#FFFFFF;--surface2:#F5F3EE;--border:#E8E6DF;
+  --text:#1A1A18;--text2:#666660;--text3:#A0A098;
+  --accent:#BA7517;--accent-d:#9A6010;--accent-bg:#FEF3E2;
+  --green:#1D9E75;--green-bg:#E8F5F0;
+  --blue:#4A5CC8;--blue-bg:#ECEFFE;
+}
+body{background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Helvetica Neue',sans-serif;
+  min-height:100vh}
+
+/* ---- SCREENS ---- */
+.scr{display:none;padding:1.5rem 1.1rem;max-width:430px;margin:0 auto}
+.scr.on{display:block}
+#s-timer{display:none;flex-direction:column;align-items:center;
+  padding:1.1rem 1.1rem 1.5rem;max-width:430px;margin:0 auto;min-height:100vh}
+#s-timer.on{display:flex}
+
+/* ---- ELEMENTS ---- */
+h1{font-size:22px;font-weight:700}
+h2{font-size:18px;font-weight:600}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;
+  border:1.5px solid var(--border);border-radius:12px;background:var(--surface);
+  color:var(--text);font-size:15px;font-family:inherit;cursor:pointer;
+  padding:10px 18px;transition:background .15s,transform .1s;font-weight:500}
+.btn:hover{background:var(--surface2)}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-p:hover{background:var(--accent-d)}
+.btn-blk{width:100%}
+.btn-lg{padding:14px 24px;font-size:16px}
+
+.card{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;
+  padding:1.2rem;margin-bottom:12px;cursor:pointer;transition:background .15s,transform .1s}
+.card:hover{background:var(--surface2)}
+.card:active{transform:scale(.99)}
+
+.back-btn{display:inline-flex;align-items:center;gap:5px;background:none;border:none;
+  color:var(--text2);font-size:15px;cursor:pointer;font-family:inherit;padding:0}
+.back-btn:hover{color:var(--text)}
+
+/* ---- EXERCISE LIST ---- */
+.ex-item{display:flex;align-items:flex-start;gap:12px;
+  padding:12px 0;border-bottom:1px solid var(--border)}
+.ex-item:last-child{border-bottom:none}
+.ex-num{width:28px;height:28px;background:var(--surface2);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0;margin-top:1px}
+.ex-name{font-size:15px;font-weight:500;margin-bottom:3px}
+.ex-sub{font-size:12px;color:var(--text3);line-height:1.5}
+
+/* ---- TIMER ---- */
+.t-topbar{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.t-exbar{width:100%;display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.ex-dots{display:flex;gap:7px}
+.ex-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .3s}
+.ex-dot.done{background:var(--text3)}
+.ex-dot.on{background:var(--accent);transform:scale(1.3)}
+
+.prog-bg{height:4px;background:var(--border);border-radius:2px;
+  overflow:hidden;width:100%;margin-bottom:1.1rem}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+
+.badge{display:inline-block;padding:4px 13px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.6rem}
+.badge-work{background:var(--accent-bg);color:var(--accent)}
+.badge-rest{background:var(--green-bg);color:var(--green)}
+.badge-reps{background:var(--blue-bg);color:var(--blue)}
+
+#t-exname{font-size:21px;font-weight:700;text-align:center;margin-bottom:3px;min-height:28px}
+#t-setlabel{font-size:13px;color:var(--text2);text-align:center;margin-bottom:1rem;min-height:18px}
+
+/* Side pills */
+.sides{display:flex;gap:10px;width:100%;margin-bottom:1rem}
+.side-pill{flex:1;padding:10px;border-radius:12px;text-align:center;
+  border:2px solid var(--border);color:var(--text3);font-size:15px;font-weight:600;transition:all .3s}
+.side-pill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Ring */
+.ring-wrap{position:relative;display:inline-flex;align-items:center;justify-content:center;margin-bottom:.9rem}
+.ring-ctr{position:absolute;text-align:center}
+#t-num{font-size:60px;font-weight:700;line-height:1}
+.t-unit{font-size:14px;color:var(--text3);margin-top:1px}
+
+/* Reps */
+#reps-display{display:none;text-align:center;margin-bottom:.9rem}
+#t-reps{font-size:68px;font-weight:700;line-height:1}
+.reps-unit{font-size:15px;color:var(--text2);margin-top:4px}
+
+/* Set dots */
+.set-dots{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:1.25rem;min-height:16px}
+.sdot{width:9px;height:9px;border-radius:50%;background:var(--border);transition:all .3s}
+.sdot.done{background:var(--text3)}
+.sdot.on{background:var(--accent);transform:scale(1.35)}
+.sdot.on.rest-on{background:var(--green)}
+
+/* Controls */
+.t-ctrls{display:flex;gap:10px;width:100%;justify-content:center;margin-bottom:1rem}
+.t-ctrls .btn{flex:1;max-width:160px;padding:12px}
+#reps-ctrls{display:none;width:100%;margin-bottom:1rem}
+#reps-ctrls .btn{width:100%;padding:15px;font-size:17px;font-weight:600;border-radius:14px}
+
+.next-lbl{font-size:13px;color:var(--text3);text-align:center;min-height:18px}
+
+/* Done */
+.done-wrap{text-align:center;padding:3rem 0}
+.done-wrap h2{margin:.8rem 0 .4rem;font-size:22px}
+.done-wrap p{color:var(--text2);font-size:14px;margin-bottom:2.5rem}
+
+/* Stats strip */
+.stats{display:flex;gap:10px;margin-bottom:1.5rem}
+.stat-card{flex:1;background:var(--surface2);border-radius:12px;padding:.9rem;text-align:center}
+.stat-num{font-size:20px;font-weight:700;color:var(--accent)}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:2px}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="s-home" class="scr on">
+  <div style="padding-top:.4rem;margin-bottom:1.75rem">
+    <h1>训练计划</h1>
+    <p style="color:var(--text2);font-size:14px;margin-top:4px">选择今天的训练</p>
+  </div>
+  <div id="routine-list"></div>
+</div>
+
+<!-- DETAIL -->
+<div id="s-detail" class="scr">
+  <div style="margin-bottom:1.25rem"><button class="back-btn" onclick="goHome()">← 返回</button></div>
+  <div id="d-header" style="margin-bottom:1.25rem"></div>
+  <div id="d-stats" class="stats"></div>
+  <div class="card" style="cursor:default;margin-bottom:1.25rem;padding:1rem 1.25rem">
+    <p style="font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-bottom:.75rem">动作列表</p>
+    <div id="d-exercises"></div>
+  </div>
+  <button class="btn btn-p btn-blk btn-lg" onclick="startRoutine()">开始训练 →</button>
+</div>
+
+<!-- TIMER -->
+<div id="s-timer">
+  <div class="t-topbar">
+    <button class="back-btn" onclick="confirmStop()">✕ 结束</button>
+    <span id="t-exctr" style="font-size:13px;color:var(--text2)"></span>
+  </div>
+  <div class="t-exbar">
+    <div id="t-exdots" class="ex-dots"></div>
+    <span id="t-total-prog" style="font-size:12px;color:var(--text3)"></span>
+  </div>
+  <div class="prog-bg"><div id="t-progbar" class="prog-fill" style="width:0%"></div></div>
+
+  <span id="t-badge" class="badge badge-work">动作</span>
+  <p id="t-exname"></p>
+  <p id="t-setlabel"></p>
+
+  <div id="t-sides" class="sides" style="display:none">
+    <div id="side-L" class="side-pill">← 左边</div>
+    <div id="side-R" class="side-pill">右边 →</div>
+  </div>
+
+  <!-- Ring (timed) -->
+  <div id="ring-wrap" class="ring-wrap">
+    <svg id="ring-svg" width="190" height="190" viewBox="0 0 190 190">
+      <circle cx="95" cy="95" r="80" fill="none" stroke="var(--border)" stroke-width="7.5"/>
+      <circle id="ring-fill" cx="95" cy="95" r="80" fill="none" stroke="var(--accent)"
+        stroke-width="7.5" stroke-linecap="round"
+        stroke-dasharray="502.65" stroke-dashoffset="0"
+        transform="rotate(-90 95 95)"
+        style="transition:stroke-dashoffset .95s linear,stroke .4s"/>
+    </svg>
+    <div class="ring-ctr">
+      <div id="t-num">0</div>
+      <div class="t-unit">秒</div>
+    </div>
+  </div>
+
+  <!-- Reps (manual) -->
+  <div id="reps-display">
+    <div id="t-reps">0</div>
+    <div class="reps-unit">个 / 每侧</div>
+  </div>
+
+  <div id="t-sdots" class="set-dots"></div>
+
+  <div id="t-ctrls" class="t-ctrls">
+    <button class="btn" id="t-pause" onclick="togglePause()">暂停</button>
+    <button class="btn" onclick="skipPhase()">跳过 →</button>
+  </div>
+  <div id="reps-ctrls">
+    <button class="btn btn-p" onclick="doneReps()">这侧完成 ✓</button>
+  </div>
+
+  <p id="t-next" class="next-lbl"></p>
+</div>
+
+<!-- DONE -->
+<div id="s-done" class="scr">
+  <div class="done-wrap">
+    <svg width="70" height="70" viewBox="0 0 70 70">
+      <circle cx="35" cy="35" r="32" fill="none" stroke="var(--green)" stroke-width="3"/>
+      <polyline points="21,35 29,44 49,24" fill="none" stroke="var(--green)"
+        stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h2>训练完成 💪</h2>
+    <p id="done-sub"></p>
+    <button class="btn btn-p" style="padding:12px 36px" onclick="goHome()">返回主页</button>
+  </div>
+</div>
+
+<script>
+// =================== DATA ===================
+
+const ROUTINES = [{
+  id:'r1', name:'腰突每日训练', subtitle:'McGill Big Three + 腰突 Push Up', emoji:'🦴',
+  restBetweenExercises: 20,
+  exercises:[
+    {
+      name:'单推仰卧', desc:'McGill Curl-Up · 每侧5组 × 15秒',
+      sideMode:'sequential',  // all sets left → all sets right
+      sets:5, duration:15, restBetweenSets:10, transitionRest:15,
+    },
+    {
+      name:'鸟狗式', desc:'Bird Dog (静态) · 交替3轮 × 15秒/侧',
+      sideMode:'alternate',   // L R L R L R
+      rounds:3, duration:15, restBetweenRounds:10,
+    },
+    {
+      name:'动态鸟狗式', desc:'Bird Dog (动态) · 交替2轮 × 每侧15个',
+      sideMode:'alternate', type:'reps',
+      rounds:2, reps:15, restBetweenRounds:10,
+    },
+    {
+      name:'单侧平板支撑', desc:'McGill Side Plank · 交替4轮 × 20秒/侧',
+      sideMode:'alternate',
+      rounds:4, duration:20, restBetweenRounds:10,
+    },
+  ]
+}];
+
+// =================== PHASE BUILDER ===================
+
+function buildPhases(r) {
+  const P = [], exes = r.exercises;
+  exes.forEach((ex, ei) => {
+    if (ex.sideMode === 'sequential') {
+      ['左','右'].forEach((side, si) => {
+        for (let s=0; s<ex.sets; s++) {
+          P.push({ type:'work', ei, exName:ex.name,
+            side, label:`${side}边 · 第 ${s+1}/${ex.sets} 组`,
+            dur:ex.duration, total:ex.sets*2, idx:si*ex.sets+s });
+          if (s < ex.sets-1)
+            P.push({ type:'rest', label:'组间休息', dur:ex.restBetweenSets,
+              next:`${ex.name} · ${side}边 第${s+2}组`, ei });
+        }
+        if (si===0)
+          P.push({ type:'transition', label:'换边休息', dur:ex.transitionRest||15,
+            next:`${ex.name} · 右边 第1组`, ei });
+      });
+    } else if (ex.type==='reps') {
+      for (let r=0; r<ex.rounds; r++) {
+        ['左','右'].forEach((side, si) => {
+          P.push({ type:'reps', ei, exName:ex.name,
+            side, label:`${side}边 · 第 ${r+1}/${ex.rounds} 轮`,
+            reps:ex.reps, total:ex.rounds*2, idx:r*2+si });
+        });
+        if (r < ex.rounds-1)
+          P.push({ type:'rest', label:'轮间休息', dur:ex.restBetweenRounds,
+            next:`${ex.name} · 左边 第${r+2}轮`, ei });
+      }
+    } else {
+      for (let r=0; r<ex.rounds; r++) {
+        ['左','右'].forEach((side, si) => {
+          P.push({ type:'work', ei, exName:ex.name,
+            side, label:`${side}边 · 第 ${r+1}/${ex.rounds} 轮`,
+            dur:ex.duration, total:ex.rounds*2, idx:r*2+si });
+        });
+        if (r < ex.rounds-1)
+          P.push({ type:'rest', label:'轮间休息', dur:ex.restBetweenRounds,
+            next:`${ex.name} · 左边 第${r+2}轮`, ei });
+      }
+    }
+    if (ei < exes.length-1)
+      P.push({ type:'ex-rest', label:'动作间休息', dur:r.restBetweenExercises,
+        next:'下一个：'+exes[ei+1].name, ei });
+  });
+  return P;
+}
+
+// =================== SCREEN ===================
+
+let curRoutine = null;
+
+function show(id) {
+  ['s-home','s-detail','s-done'].forEach(s => {
+    document.getElementById(s).classList.remove('on');
+  });
+  const timer = document.getElementById('s-timer');
+  timer.classList.remove('on');
+  if (id==='s-timer') timer.classList.add('on');
+  else document.getElementById(id).classList.add('on');
+}
+
+function goHome() { clearInterval(tid); show('s-home'); }
+
+// =================== HOME ===================
+
+function renderHome() {
+  document.getElementById('routine-list').innerHTML =
+    ROUTINES.map(r => `
+      <div class="card" onclick="openRoutine('${r.id}')">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:48px;height:48px;background:var(--accent-bg);border-radius:14px;
+            display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">${r.emoji}</div>
+          <div>
+            <div style="font-size:16px;font-weight:600;margin-bottom:3px">${r.name}</div>
+            <div style="font-size:13px;color:var(--text3)">${r.subtitle}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px">${r.exercises.length} 个动作</div>
+          </div>
+          <div style="margin-left:auto;color:var(--text3);font-size:18px">›</div>
+        </div>
+      </div>`).join('') +
+    `<div class="card" style="border-style:dashed;cursor:default;
+        text-align:center;padding:1.25rem;color:var(--text3)">
+      <span style="font-size:14px">+ 添加训练计划（即将支持）</span>
+    </div>`;
+}
+
+function openRoutine(id) {
+  curRoutine = ROUTINES.find(r => r.id===id);
+  if (!curRoutine) return;
+
+  document.getElementById('d-header').innerHTML = `
+    <h2>${curRoutine.name}</h2>
+    <p style="color:var(--text2);font-size:14px;margin-top:4px">${curRoutine.subtitle}</p>`;
+
+  // quick stats
+  let totalSets = 0, totalTime = 0;
+  curRoutine.exercises.forEach(ex => {
+    if (ex.sideMode==='sequential') { totalSets+=ex.sets*2; totalTime+=ex.sets*2*ex.duration+ex.sets*2*ex.restBetweenSets; }
+    else if (ex.type==='reps') totalSets+=ex.rounds*2;
+    else { totalSets+=ex.rounds*2; totalTime+=ex.rounds*2*ex.duration+ex.rounds*ex.restBetweenRounds; }
+  });
+  totalTime += curRoutine.restBetweenExercises * (curRoutine.exercises.length-1);
+  const mins = Math.round(totalTime/60);
+  document.getElementById('d-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${curRoutine.exercises.length}</div><div class="stat-lbl">动作</div></div>
+    <div class="stat-card"><div class="stat-num">${totalSets}</div><div class="stat-lbl">总组数</div></div>
+    <div class="stat-card"><div class="stat-num">~${mins}</div><div class="stat-lbl">分钟</div></div>`;
+
+  document.getElementById('d-exercises').innerHTML = curRoutine.exercises.map((ex,i) => `
+    <div class="ex-item">
+      <div class="ex-num">${i+1}</div>
+      <div>
+        <div class="ex-name">${ex.name}</div>
+        <div class="ex-sub">${ex.desc}</div>
+      </div>
+    </div>`).join('');
+
+  show('s-detail');
+}
+
+// =================== TIMER STATE ===================
+
+let phases=[], pi=0, timeLeft=0, totalT=0, tid=null, paused=false;
+
+const CIRC = 2*Math.PI*80; // 502.65
+
+function startRoutine() {
+  if (!curRoutine) return;
+  phases = buildPhases(curRoutine);
+  pi=0; paused=false;
+  show('s-timer');
+  renderExDots();
+  beginPhase();
+}
+
+function renderExDots() {
+  document.getElementById('t-exdots').innerHTML =
+    curRoutine.exercises.map((_,i) =>
+      `<div class="ex-dot" id="edot-${i}"></div>`).join('');
+}
+
+function beginPhase() {
+  if (pi >= phases.length) { finishAll(); return; }
+  const p = phases[pi];
+  paused=false;
+  document.getElementById('t-pause').textContent='暂停';
+  updateExDots(p);
+  updateProgress();
+  updateNextPreview();
+
+  if (p.type==='work') doWork(p);
+  else if (p.type==='reps') doReps(p);
+  else doRest(p);
+}
+
+function doWork(p) {
+  timeLeft=totalT=p.dur;
+  setBadge('work','动作');
+  setNames(p.exName, p.label);
+  setSides(p.side);
+  showRing(true);
+  setRing(1, 'var(--accent)');
+  setNum(timeLeft);
+  clearInterval(tid);
+  beep('start');
+  tid=setInterval(()=>{
+    if(paused)return;
+    if(timeLeft<=3&&timeLeft>0)beep('tick');
+    timeLeft--;setNum(timeLeft);setRing(timeLeft/totalT,'var(--accent)');
+    if(timeLeft<=0){clearInterval(tid);setTimeout(nextPhase,350);}
+  },1000);
+}
+
+function doReps(p) {
+  setBadge('reps','计次');
+  setNames(p.exName, p.label);
+  setSides(p.side);
+  showRing(false);
+  document.getElementById('t-reps').textContent=p.reps;
+  clearInterval(tid);
+  beep('start');
+}
+
+function doRest(p) {
+  timeLeft=totalT=p.dur;
+  const isEx = p.type==='ex-rest';
+  const isTrans = p.type==='transition';
+  setBadge('rest', isTrans?'换边':isEx?'动作间':p.label);
+  setNames(isTrans?'换另一边 准备好…':isEx?'休息，准备下一个动作':'休息', p.next||'');
+  hideSides();
+  showRing(true);
+  setRing(1,'var(--green)');
+  setNum(timeLeft);
+  clearInterval(tid);
+  beep('rest');
+  tid=setInterval(()=>{
+    if(paused)return;
+    timeLeft--;setNum(timeLeft);setRing(timeLeft/totalT,'var(--green)');
+    if(timeLeft<=0){clearInterval(tid);setTimeout(nextPhase,350);}
+  },1000);
+}
+
+function doneReps() { beep('tick'); setTimeout(nextPhase,150); }
+function skipPhase() { clearInterval(tid); nextPhase(); }
+function nextPhase() { pi++; beginPhase(); }
+
+function togglePause() {
+  paused=!paused;
+  document.getElementById('t-pause').textContent=paused?'继续':'暂停';
+}
+
+function confirmStop() {
+  if(confirm('确定结束训练吗？')) { clearInterval(tid); goHome(); }
+}
+
+function finishAll() {
+  clearInterval(tid);
+  beep('done');
+  document.getElementById('done-sub').textContent = curRoutine.name + ' · 全部完成！';
+  show('s-done');
+}
+
+// =================== UI HELPERS ===================
+
+function setBadge(type, text) {
+  const b = document.getElementById('t-badge');
+  b.className = 'badge badge-'+type;
+  b.textContent = text;
+}
+function setNames(name, label) {
+  document.getElementById('t-exname').textContent = name;
+  document.getElementById('t-setlabel').textContent = label;
+}
+function setSides(side) {
+  document.getElementById('t-sides').style.display='flex';
+  document.getElementById('side-L').className='side-pill'+(side==='左'?' on':'');
+  document.getElementById('side-R').className='side-pill'+(side==='右'?' on':'');
+}
+function hideSides() { document.getElementById('t-sides').style.display='none'; }
+function showRing(timed) {
+  document.getElementById('ring-wrap').style.display = timed?'inline-flex':'none';
+  document.getElementById('reps-display').style.display = timed?'none':'block';
+  document.getElementById('t-ctrls').style.display = timed?'flex':'none';
+  document.getElementById('reps-ctrls').style.display = timed?'none':'block';
+}
+function setRing(frac, color) {
+  const r = document.getElementById('ring-fill');
+  r.style.strokeDashoffset = CIRC*(1-Math.max(0,frac));
+  r.style.stroke = color;
+}
+function setNum(n) { document.getElementById('t-num').textContent=n; }
+
+function updateExDots(p) {
+  const ei = p.ei!==undefined ? p.ei : -1;
+  const n = curRoutine.exercises.length;
+  document.getElementById('t-exctr').textContent = ei>=0 ? `动作 ${ei+1} / ${n}` : '';
+  document.getElementById('t-total-prog').textContent = `${pi+1} / ${phases.length}`;
+  for (let i=0;i<n;i++) {
+    const d = document.getElementById('edot-'+i);
+    if(!d)continue;
+    d.className='ex-dot'+(i<ei?' done':i===ei?' on':'');
+  }
+  // set dots
+  const dots = document.getElementById('t-sdots');
+  if(p.total) {
+    dots.innerHTML = Array.from({length:p.total},(_,i)=>`
+      <div class="sdot${i<p.idx?' done':i===p.idx?' on':''}"></div>`).join('');
+  } else {
+    dots.innerHTML='';
+  }
+}
+
+function updateProgress() {
+  document.getElementById('t-progbar').style.width=(pi/phases.length*100)+'%';
+}
+
+function updateNextPreview() {
+  const next = phases[pi+1];
+  const el = document.getElementById('t-next');
+  if(!next){ el.textContent='最后一阶段，加油！'; return; }
+  if(next.type==='work') el.textContent=`接下来：${next.exName} · ${next.label}`;
+  else if(next.type==='reps') el.textContent=`接下来：${next.exName} · ${next.label}`;
+  else if(next.type==='rest'||next.type==='transition') el.textContent=`接下来：休息 ${next.dur} 秒`;
+  else if(next.type==='ex-rest') el.textContent=`接下来：${next.next}（休息${next.dur}秒）`;
+  else el.textContent='';
+}
+
+// =================== AUDIO ===================
+
+function beep(type) {
+  try {
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    function t(f,delay,dur,vol){
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.frequency.value=f;
+      g.gain.setValueAtTime(vol,ctx.currentTime+delay);
+      g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay+dur);
+      o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+dur);
+    }
+    if(type==='start'){ t(880,0,.18,.28); }
+    else if(type==='rest'){ t(440,0,.28,.22); }
+    else if(type==='tick'){ t(1100,0,.07,.18); }
+    else if(type==='done'){ t(660,0,.18,.28);t(880,.26,.38,.28); }
+  } catch(e){}
+}
+
+// =================== INIT ===================
+renderHome();
+</script>
+</body>
+</html>
